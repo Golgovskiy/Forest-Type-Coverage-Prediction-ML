@@ -1,7 +1,7 @@
 import click.testing
 import pytest
 
-from ml_project_demo import console
+#from ml_project_demo import console
 
 
 @pytest.fixture
@@ -9,6 +9,6 @@ def runner():
     return click.testing.CliRunner()
 
 
-def test_main_succeeds(runner):
-    result = runner.invoke(console.main)
-    assert result.exit_code == 0
+#def test_main_succeeds(runner):
+#    result = runner.invoke(console.main)
+#    assert result.exit_code == 0
