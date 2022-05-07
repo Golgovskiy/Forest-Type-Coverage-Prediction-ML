@@ -14,7 +14,7 @@ This package allows you to train model for predicting the forest coverage based 
 ```sh
 poetry install --no-dev
 ```
-5. Run any of the train*** files with the following command:
+5. Run any of the train* files with the following command:
 ```sh
 poetry run train -d <path to csv with data> -s <path to save trained model>
 ```
