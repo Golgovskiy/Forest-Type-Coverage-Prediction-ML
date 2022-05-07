@@ -78,7 +78,6 @@ def train(
         raise click.ClickException("Wrong k-folds value!")
         
     with mlflow.start_run():
-    
         click.echo("Running mflow...")
         pipeline = create_pipeline(use_scaler, max_iter, logreg_c, random_state)
         click.echo("Pipeline created.")
