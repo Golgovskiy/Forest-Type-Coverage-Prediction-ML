@@ -14,7 +14,7 @@ def get_dataset(
     
     click.echo(f"Dataset shape: {dataset.shape}.")
     
-    features = dataset.drop("target", axis=1)
-    target = dataset["target"]
+    features = dataset.iloc[:,:-1]
+    target = dataset.iloc[:,-1:]
     
     return features, target
