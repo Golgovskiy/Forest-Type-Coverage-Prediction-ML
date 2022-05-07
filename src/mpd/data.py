@@ -7,7 +7,7 @@ import pandas as pd
 
 
 def get_dataset(
-    csv_path: Path, random_state: int, k_folds: int
+    csv_path: Path, random_state: int
 ) -> Tuple[pd.DataFrame, pd.Series]:
 
     dataset = pd.read_csv(csv_path)
