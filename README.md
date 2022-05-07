@@ -26,6 +26,10 @@ poetry run train --help
 ```sh
 poetry run mlflow ui
 ```
+You can run report file to generate a pandas profiling report.html (and save to place of you choise with options of CLI)
+```
+poetry run report -d <path to csv with data> -s <path to save report>
+```
 
 ## Development
 
