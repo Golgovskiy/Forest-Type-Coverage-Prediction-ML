@@ -28,20 +28,20 @@ def install_with_constraints(session: Session, *args: str, **kwargs: Any) -> Non
         session.install(f"--constraint={requirements.name}", *args, **kwargs)
 
 
-# @nox.session(python="3.8")
-# def black(session: Session) -> None:
-    # """Run black code formatter."""
-    # args = session.posargs or locations
-    # install_with_constraints(session, "black")
-    # session.run("black", *args)
+@nox.session(python="3.8")
+def black(session: Session) -> None:
+    """Run black code formatter."""
+    args = session.posargs or locations
+    install_with_constraints(session, "black")
+    session.run("black", *args)
 
 
-# @nox.session(python="3.8")
-# def mypy(session: Session) -> None:
-    # """Type-check using mypy."""
-    # args = session.posargs or locations
-    # install_with_constraints(session, "mypy")
-    # session.run("mypy", *args)
+@nox.session(python="3.8")
+def mypy(session: Session) -> None:
+    """Type-check using mypy."""
+    args = session.posargs or locations
+    install_with_constraints(session, "mypy")
+    session.run("mypy", *args)
 
 
 @nox.session(python="3.8")
