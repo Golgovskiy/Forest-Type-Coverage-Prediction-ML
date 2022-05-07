@@ -13,7 +13,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
-from .data import get_dataset
+import .files import get_dataset
  
 
 @click.command()
@@ -85,7 +85,7 @@ def train(
     shuffle: bool,
 ) -> None:
     # create dataset
-    features, target = get_dataset(
+    features, target = data.get_dataset(
         dataset_path,
         random_state,
     )
@@ -142,22 +142,8 @@ def train(
         mlflow.log_metric("f1", np.mean(f1))
         mlflow.log_metric("roc_auc", np.mean(roc_auc))
         
-        click.echo(f"Average fit time: {np.mean(fit_time):.3f}. Accuracy: {np.mean(accuracy):.3f} ({np.std(accuracy):.3f}). F1: {np.mean(f1):.3f} ({np.std(f1):.3f}). ROC_AUC: {np.mean(roc_auc):.3f} ({np.std(roc_auc):.3f}).")
         
-        
-        
-        mlflow.log_param("use_scaler", use_scaler)
-        mlflow.log_param("max_iter", max_iter)
-        mlflow.log_param("logreg_c", logreg_c)
-        mlflow.log_param("k-folds-inner", k_folds_inner)
-        mlflow.log_param("k-folds-outer", k_folds_outer)
-        
-        mlflow.log_metric("accuracy", accuracy)
-        mlflow.log_metric("f1", f1)
-        mlflow.log_metric("roc_auc", roc_auc)
-        click.echo("Parameters logged.")
-        
-        click.echo(f"Average fit time: {fit_time}. Accuracy: {accuracy}. F1: {f1}. ROC_AUC: {roc_auc}.")
+        click.echo(f"Average fit time: {np.mean(fit_time):.3f} ± {np.std(fit_time):.3f}. Accuracy: {np.mean(accuracy):.3f} ± {np.std(accuracy):.3f}. F1: {np.mean(f1):.3f} ± {np.std(f1):.3f}. ROC_AUC: {np.mean(roc_auc):.3f} ± {np.std(roc_auc):.3f}.")
         
         dump(pipeline, save_model_path)
         

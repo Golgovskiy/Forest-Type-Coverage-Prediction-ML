@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
-from .data import get_dataset
+from .files import get_dataset
 
 def create_pipeline(
     use_scaler: bool, max_iter: int, logreg_C: float, random_state: int
@@ -112,7 +112,8 @@ def train(
         mlflow.log_metric("f1", np.mean(f1))
         mlflow.log_metric("roc_auc", np.mean(roc_auc))
         
-        click.echo(f"Average fit time: {np.mean(fit_time):.3f}. Accuracy: {np.mean(accuracy):.3f} ({np.std(accuracy):.3f}). F1: {np.mean(f1):.3f} ({np.std(f1):.3f}). ROC_AUC: {np.mean(roc_auc):.3f} ({np.std(roc_auc):.3f}).")
+        
+        click.echo(f"Average fit time: {np.mean(fit_time):.3f} ± {np.std(fit_time):.3f}. Accuracy: {np.mean(accuracy):.3f} ± {np.std(accuracy):.3f}. F1: {np.mean(f1):.3f} ± {np.std(f1):.3f}. ROC_AUC: {np.mean(roc_auc):.3f} ± {np.std(roc_auc):.3f}.")
         
         
         
