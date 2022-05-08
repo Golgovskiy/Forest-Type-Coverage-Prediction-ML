@@ -4,6 +4,7 @@ import os
 
 from pandas_profiling import ProfileReport
 
+
 @click.command()
 @click.option(
     "-d",
@@ -21,6 +22,8 @@ from pandas_profiling import ProfileReport
 )
 def makeReport(dataset_path, save_to):
     df = pd.read_csv(dataset_path)
-    profile = ProfileReport(df, title="Pandas Profiling Report", missing_diagrams={"Count": False})
+    profile = ProfileReport(
+        df, title="Pandas Profiling Report", missing_diagrams={"Count": False}
+    )
     profile.to_file(save_to)
     click.echo("Report was saved to: " + save_to)
