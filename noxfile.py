@@ -7,12 +7,13 @@ import nox
 from nox.sessions import Session
 
 
-#nox.options.sessions = "black", "mypy", "tests"
+# nox.options.sessions = "black", "mypy", "tests"
 locations = "src", "noxfile.py"
+
 
 def install_with_constraints(session: Session, *args: str, **kwargs: Any) -> None:
     """Install packages constrained by Poetry's lock file.
-    By default newest versions of packages are installed,
+    By default, the newest versions of packages are installed,
     but we use versions from poetry.lock instead to guarantee reproducibility of sessions.
     """
     with tempfile.NamedTemporaryFile() as requirements:

@@ -5,13 +5,13 @@ import click
 import mlflow
 import mlflow.sklearn
 import numpy as np
-from sklearn.metrics import accuracy_score,roc_auc_score,f1_score
 from sklearn.model_selection import cross_validate
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
 from .files import get_dataset
+
 
 def create_pipeline(
     use_scaler: bool, max_iter: int, logreg_C: float, random_state: int
@@ -28,8 +28,8 @@ def create_pipeline(
         )
     )
     return Pipeline(steps=pipeline_steps)
-    
-    
+
+
 @click.command()
 @click.option(
     "-d",
@@ -75,7 +75,6 @@ def create_pipeline(
     type=float,
     show_default=True,
 )
-
 def train(
     dataset_path: Path,
     save_model_path: Path,
@@ -90,43 +89,41 @@ def train(
         random_state,
     )
     click.echo("Dataset loaded.")
-    
+
     with mlflow.start_run():
-        
+
         pipeline = create_pipeline(use_scaler, max_iter, logreg_c, random_state)
-        
-        result={}
-        result = cross_validate(pipeline, features, target.values.ravel(), scoring = ['accuracy', "roc_auc_ovr","f1_weighted"], cv=k_folds, n_jobs=-1)
-            
+
+        result = {}
+        result = cross_validate(
+            pipeline,
+            features,
+            target.values.ravel(),
+            scoring=["accuracy", "roc_auc_ovr", "f1_weighted"],
+            cv=k_folds,
+            n_jobs=-1,
+        )
+
         fit_time = result["fit_time"]
         accuracy = result["test_accuracy"]
         f1 = result["test_f1_weighted"]
         roc_auc = result["test_roc_auc_ovr"]
-        
+
         mlflow.log_param("use_scaler", use_scaler)
         mlflow.log_param("max_iter", max_iter)
         mlflow.log_param("logreg_c", logreg_c)
         mlflow.log_param("k-folds", k_folds)
-        
+
         mlflow.log_metric("accuracy", np.mean(accuracy))
         mlflow.log_metric("f1", np.mean(f1))
         mlflow.log_metric("roc_auc", np.mean(roc_auc))
-        
-        
-        click.echo(f"Average fit time: {np.mean(fit_time):.3f} ± {np.std(fit_time):.3f}. Accuracy: {np.mean(accuracy):.3f} ± {np.std(accuracy):.3f}. F1: {np.mean(f1):.3f} ± {np.std(f1):.3f}. ROC_AUC: {np.mean(roc_auc):.3f} ± {np.std(roc_auc):.3f}.")
-        
-        
-        
-        
-        
-        #make sure to actually fit on all the data
-        
-        
-        
-        
-        
-        
-        
+
+        click.echo(
+            f"Average fit time: {np.mean(fit_time):.3f} ± {np.std(fit_time):.3f}. Accuracy: {np.mean(accuracy):.3f} ± {np.std(accuracy):.3f}. F1: {np.mean(f1):.3f} ± {np.std(f1):.3f}. ROC_AUC: {np.mean(roc_auc):.3f} ± {np.std(roc_auc):.3f}."
+        )
+
+        # make sure to actually fit on all the data
+
         dump(pipeline, save_model_path)
-        
+
         click.echo(f"Model is saved to {save_model_path}.")
