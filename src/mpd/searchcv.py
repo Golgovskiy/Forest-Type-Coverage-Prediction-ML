@@ -7,21 +7,25 @@ from pandas import DataFrame, Series
 from mpd import model
 
 
-def search(searcher: BaseEstimator, features: DataFrame, targets: Series,
-           random_state: int = 42,
-           cv_splits: int = 5,
-           shuffle: bool = True, ) -> BaseEstimator:
+def search(
+    searcher: BaseEstimator,
+    features: DataFrame,
+    targets: Series,
+    random_state: int = 42,
+    cv_splits: int = 5,
+    shuffle: bool = True,
+) -> BaseEstimator:
     cv = StratifiedKFold(n_splits=cv_splits, shuffle=shuffle, random_state=random_state)
     searcher.fit(X=features, y=targets.values.ravel())
     return searcher.best_estimator_
 
 
 def get_search(
-        model_type: type,
-        search_type: str,
-        random_state: int = 42,
-        cv_splits: int = 5,
-        shuffle: bool = True,
+    model_type: type,
+    search_type: str,
+    random_state: int = 42,
+    cv_splits: int = 5,
+    shuffle: bool = True,
 ) -> BaseEstimator:
     cv = StratifiedKFold(n_splits=cv_splits, shuffle=shuffle, random_state=random_state)
 
@@ -32,7 +36,7 @@ def get_search(
             scoring="roc_auc_ovr",
             n_jobs=-1,
             cv=cv,
-            refit=True
+            refit=True,
         )
     if search_type == "random":
         search_cv = RandomizedSearchCV(
@@ -55,7 +59,7 @@ randfor_space = {
     "ccp_alpha": [0, 1, 2, 5, 10, 30, 75, 100, 200],
 }
 logreg_space = {
-    "C": [0.001, 0.01, 0.1, 1, 5, 10, 50, 100],
+    "c": [0.001, 0.01, 0.1, 1, 5, 10, 50, 100],
     "max_iter": [500, 750, 1000, 2000, 5000],
 }
 spaces = {model.randfor_type: randfor_space, model.logreg_type: logreg_space}

@@ -6,12 +6,16 @@ from sklearn.model_selection import StratifiedKFold
 from mpd import model
 
 
-def cross_validate_model(features, target, cv_splits, shuffle, estimator, random_state, use_scaler) -> dict:
+def cross_validate_model(
+    features, target, cv_splits, shuffle, estimator, random_state, use_scaler
+) -> dict:
     click.echo("Cross-validating model...")
 
     pipe = model.create_pipeline(estimator, use_scaler)
 
-    cv_outer = StratifiedKFold(n_splits=cv_splits, shuffle=shuffle, random_state=random_state)
+    cv_outer = StratifiedKFold(
+        n_splits=cv_splits, shuffle=shuffle, random_state=random_state
+    )
     result = cross_validate(
         pipe,
         features,
@@ -19,7 +23,7 @@ def cross_validate_model(features, target, cv_splits, shuffle, estimator, random
         scoring=["accuracy", "roc_auc_ovr", "f1_weighted"],
         cv=cv_outer,
         n_jobs=-1,
-        return_estimator=True
+        return_estimator=True,
     )
     metrics = {
         "test_accuracy": float(np.mean(result["test_accuracy"])),

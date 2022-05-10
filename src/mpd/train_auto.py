@@ -16,7 +16,7 @@ from mpd import mlflow_utils
     "-m",
     "--model_type",
     default="logreg",
-    type=click.Choice(['logreg', 'randfor'], case_sensitive=False),
+    type=click.Choice(["logreg", "randfor"], case_sensitive=False),
     help="Model to train",
     show_default=True,
 )
@@ -47,7 +47,7 @@ from mpd import mlflow_utils
 @click.option(
     "--search_cv",
     default="random",
-    type=click.Choice(['random', 'grid'], case_sensitive=False),
+    type=click.Choice(["random", "grid"], case_sensitive=False),
     help="Hyperparameter estimator strategy",
     show_default=True,
 )
@@ -95,33 +95,48 @@ from mpd import mlflow_utils
     show_default=True,
 )
 def train(
-        model_type: str,
-        dataset_path: Path,
-        save_model_path: Path,
-        random_state: int,
-        cv_splits_inner: int,
-        cv_splits_outer: int,
-        shuffle: bool,
-        search_cv: str,
-        use_scaler: bool,
-        save_model: bool,
-        only_fit: bool
+    model_type: str,
+    dataset_path: Path,
+    save_model_path: Path,
+    random_state: int,
+    cv_splits_inner: int,
+    cv_splits_outer: int,
+    shuffle: bool,
+    search_cv: str,
+    use_scaler: bool,
+    save_model: bool,
+    only_fit: bool,
 ) -> None:
     mlflow.set_experiment(f"{model_type}_auto")
     features, target = files.get_dataset(dataset_path)
     click.echo("Fitting model...")
-    searcher = searchcv.get_search(search_type=search_cv, random_state=random_state, cv_splits=cv_splits_inner,
-                                   shuffle=shuffle, model_type=model.model_types[model_type])
-    estimator = searchcv.search(searcher=searcher, features=features, targets=target, random_state=random_state,
-                                shuffle=shuffle)
+    searcher = searchcv.get_search(
+        search_type=search_cv,
+        random_state=random_state,
+        cv_splits=cv_splits_inner,
+        shuffle=shuffle,
+        model_type=model.model_types[model_type],
+    )
+    estimator = searchcv.search(
+        searcher=searcher,
+        features=features,
+        targets=target,
+        random_state=random_state,
+        shuffle=shuffle,
+    )
     if only_fit and save_model:
         files.save_the_model(estimator, use_scaler, save_model_path)
     else:
         with mlflow.start_run():
-            metrics = crossvalidate.cross_validate_model(features=features, target=target, cv_splits=cv_splits_outer,
-                                                         shuffle=shuffle,
-                                                         use_scaler=use_scaler, random_state=random_state,
-                                                         estimator=estimator)
+            metrics = crossvalidate.cross_validate_model(
+                features=features,
+                target=target,
+                cv_splits=cv_splits_outer,
+                shuffle=shuffle,
+                use_scaler=use_scaler,
+                random_state=random_state,
+                estimator=estimator,
+            )
             mlflow_utils.log_mlflow_data(searcher.best_params_, metrics)
         if save_model:
             files.save_the_model(estimator, use_scaler, save_model_path)
