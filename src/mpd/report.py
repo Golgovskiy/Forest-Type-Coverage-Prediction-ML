@@ -1,6 +1,6 @@
 import pandas as pd
+from pathlib import Path
 import click
-import os
 
 from pandas_profiling import ProfileReport
 
@@ -20,10 +20,10 @@ from pandas_profiling import ProfileReport
     type=click.Path(exists=False),
     show_default=True,
 )
-def makeReport(dataset_path, save_to):
+def makeReport(dataset_path: Path, save_to: Path) -> None:
     df = pd.read_csv(dataset_path)
     profile = ProfileReport(
         df, title="Pandas Profiling Report", missing_diagrams={"Count": False}
     )
     profile.to_file(save_to)
-    click.echo("Report was saved to: " + save_to)
+    click.echo("Report was saved to: " + str(save_to))

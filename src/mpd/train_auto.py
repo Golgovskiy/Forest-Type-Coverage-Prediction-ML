@@ -3,153 +3,126 @@ from joblib import dump
 
 import click
 import mlflow
-import mlflow.sklearn
-import numpy as np
-from sklearn.model_selection import cross_validate
-from sklearn.model_selection import KFold
-from sklearn.model_selection import GridSearchCV
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import Pipeline
 
-from .files import get_dataset
+from mpd import files
+from mpd import model
+from mpd import searchcv
+from mpd import crossvalidate
+from mpd import mlflow_utils
 
 
 @click.command()
 @click.option(
-    "-d",
-    "--dataset-path",
-    default="data/train.csv",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    "-m",
+    "--model_type",
+    default="logreg",
+    type=click.Choice(['logreg', 'randfor'], case_sensitive=False),
+    help="Model to train",
     show_default=True,
 )
 @click.option(
-    "-s",
-    "--save-model-path",
-    default="data/model.joblib",
+    "-d",
+    "--dataset_path",
+    default="data/train.csv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Path to dataset.",
+    show_default=True,
+)
+@click.option(
+    "-st",
+    "--save_model_path",
+    help="Path to save fitted model to.",
+    default="data/logreg.joblib",
     type=click.Path(dir_okay=False, writable=True, path_type=Path),
     show_default=True,
 )
 @click.option(
-    "--random-state",
-    default=42,
-    type=int,
-    show_default=True,
-)
-@click.option(
-    "--k-folds-inner",
-    default=3,
-    type=int,
-    show_default=True,
-)
-@click.option(
-    "--k-folds-outer",
-    default=5,
-    type=int,
-    show_default=True,
-)
-@click.option(
-    "--use-scaler",
+    "-s",
+    "--save_model",
+    help="Whether to save fitted model or not.",
     default=True,
     type=bool,
     show_default=True,
 )
 @click.option(
-    "--max-iter",
-    default=1000,
+    "--search_cv",
+    default="random",
+    type=click.Choice(['random', 'grid'], case_sensitive=False),
+    help="Hyperparameter estimator strategy",
+    show_default=True,
+)
+@click.option(
+    "-f",
+    "--only_fit",
+    default=False,
+    type=bool,
+    help="Only fit classificator and save it.",
+    show_default=True,
+)
+@click.option(
+    "--random_state",
+    default=42,
+    help="Random seed.",
+    type=int,
+    show_default=True,
+)
+@click.option(
+    "--cv_splits_inner",
+    default=5,
+    help="Number of splits in inner loop.",
+    type=int,
+    show_default=True,
+)
+@click.option(
+    "--cv_splits_outer",
+    default=5,
+    help="Number of splits in outer loop.",
     type=int,
     show_default=True,
 )
 @click.option(
     "--shuffle",
     default=True,
+    help="Shuffle features before splitting.",
     type=bool,
     show_default=True,
 )
 @click.option(
-    "--logreg-c",
-    default=1.0,
-    type=float,
+    "--use_scaler",
+    default=True,
+    help="Use StandardScaler to scale dataset.",
+    type=bool,
     show_default=True,
 )
 def train(
-    dataset_path: Path,
-    save_model_path: Path,
-    random_state: int,
-    k_folds_inner: int,
-    k_folds_outer: int,
-    use_scaler: bool,
-    max_iter: int,
-    logreg_c: float,
-    shuffle: bool,
+        model_type: str,
+        dataset_path: Path,
+        save_model_path: Path,
+        random_state: int,
+        cv_splits_inner: int,
+        cv_splits_outer: int,
+        shuffle: bool,
+        search_cv: str,
+        use_scaler: bool,
+        save_model: bool,
+        only_fit: bool
 ) -> None:
-    # create dataset
-    features, target = get_dataset(
-        dataset_path,
-        random_state,
-    )
-    with mlflow.start_run():
-
-        # configure the cross-validation procedure
-        cv_inner = KFold(
-            n_splits=k_folds_inner, shuffle=shuffle, random_state=random_state
-        )
-
-        # define search space
-        space = dict()
-        space["C"] = [1, 2, 5, 10]
-
-        regressor = LogisticRegression(random_state=random_state, max_iter=max_iter)
-        pipeline_steps = []
-        if use_scaler:
-            pipeline_steps.append(("scaler", StandardScaler()))
-
-        pipeline_steps.append(
-            (
-                "search",
-                GridSearchCV(
-                    regressor,
-                    space,
-                    scoring="roc_auc_ovr",
-                    n_jobs=-1,
-                    cv=cv_inner,
-                    refit=True,
-                ),
-            ),
-        )
-        pipeline = Pipeline(steps=pipeline_steps)
-
-        # configure the cross-validation procedure
-        cv_outer = KFold(n_splits=k_folds_outer, shuffle=True, random_state=1)
-        # execute the nested cross-validation
-        result = cross_validate(
-            pipeline,
-            features,
-            target.values.ravel(),
-            scoring=["accuracy", "roc_auc_ovr", "f1_weighted"],
-            cv=cv_outer,
-            n_jobs=-1,
-        )
-
-        fit_time = result["fit_time"]
-        accuracy = result["test_accuracy"]
-        f1 = result["test_f1_weighted"]
-        roc_auc = result["test_roc_auc_ovr"]
-
-        mlflow.log_param("use_scaler", use_scaler)
-        mlflow.log_param("max_iter", max_iter)
-        mlflow.log_param("logreg_c", logreg_c)
-        mlflow.log_param("k-folds-inner", k_folds_inner)
-        mlflow.log_param("k-folds-outer", k_folds_outer)
-
-        mlflow.log_metric("accuracy", np.mean(accuracy))
-        mlflow.log_metric("f1", np.mean(f1))
-        mlflow.log_metric("roc_auc", np.mean(roc_auc))
-
-        click.echo(
-            f"Average fit time: {np.mean(fit_time):.3f} ± {np.std(fit_time):.3f}. Accuracy: {np.mean(accuracy):.3f} ± {np.std(accuracy):.3f}. F1: {np.mean(f1):.3f} ± {np.std(f1):.3f}. ROC_AUC: {np.mean(roc_auc):.3f} ± {np.std(roc_auc):.3f}. "
-        )
-
-        dump(pipeline, save_model_path)
-
-        click.echo(f"Model is saved to {save_model_path}.")
+    mlflow.set_experiment(f"{model_type}_auto")
+    features, target = files.get_dataset(dataset_path)
+    click.echo("Fitting model...")
+    searcher = searchcv.get_search(search_type=search_cv, random_state=random_state, cv_splits=cv_splits_inner,
+                                   shuffle=shuffle, model_type=model.model_types[model_type])
+    estimator = searchcv.search(searcher=searcher, features=features, targets=target, random_state=random_state,
+                                shuffle=shuffle)
+    if only_fit and save_model:
+        files.save_the_model(estimator, use_scaler, save_model_path)
+    else:
+        with mlflow.start_run():
+            metrics = crossvalidate.cross_validate_model(features=features, target=target, cv_splits=cv_splits_outer,
+                                                         shuffle=shuffle,
+                                                         use_scaler=use_scaler, random_state=random_state,
+                                                         estimator=estimator)
+            mlflow_utils.log_mlflow_data(searcher.best_params_, metrics)
+        if save_model:
+            files.save_the_model(estimator, use_scaler, save_model_path)
+    click.echo("Finished.")
