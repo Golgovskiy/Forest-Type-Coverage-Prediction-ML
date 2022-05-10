@@ -16,7 +16,7 @@ poetry install --no-dev
 ```
 5. Run any of the train* files with the following command:
 ```sh
-poetry run train -d <path to csv with data> -s <path to save trained model>
+poetry run train -d <path to csv with data> -st <path to save trained model>
 ```
 You can configure additional options (such as hyperparameters) in the CLI. To get a full list of them, use help:
 ```sh

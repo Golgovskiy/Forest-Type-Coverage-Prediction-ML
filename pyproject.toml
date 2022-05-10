@@ -30,5 +30,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 report = "mpd.report:makeReport"
-train = "mpd.train:train"
+train_logreg = "mpd.train_logreg:train"
 train_auto = "mpd.train_auto:train"
+train_randfor = "mpd.train_randfor:train"
