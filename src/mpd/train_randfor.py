@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import click
-import mlflow.sklearn as mlflow
+import mlflow
 
 from mpd import files, model, crossvalidate, mlflow_utils
 
@@ -93,7 +93,11 @@ from mpd import files, model, crossvalidate, mlflow_utils
     show_default=True,
 )
 @click.option(
-    "--random_state", default=42, help="Random seed.", type=int, show_default=True
+    "--random_state",
+    default=42,
+    help="Random seed.",
+    type=int,
+    show_default=True
 )
 @click.option(
     "--cv_splits",
@@ -128,7 +132,6 @@ def train(
 
     mlflow.set_experiment("randfor")
     (features, target) = files.get_dataset(dataset_path)
-    click.echo("Fitting model...")
     estimator = model.get_randfor(
         n_estimators=n_estimators,
         ccp_alpha=ccp_alpha,
@@ -138,6 +141,8 @@ def train(
         criterion=criterion,
         random_state=random_state,
     )
+
+    pipe = model.create_pipeline(estimator,use_scaler)
     if not only_fit:
         with mlflow.start_run():
             metrics = crossvalidate.cross_validate_model(
@@ -147,7 +152,7 @@ def train(
                 shuffle=shuffle,
                 use_scaler=use_scaler,
                 random_state=random_state,
-                estimator=estimator,
+                estimator=pipe,
             )
             mlflow_utils.log_mlflow_data(
                 {
@@ -162,6 +167,7 @@ def train(
             )
 
     if save_model:
-        estimator.fit(features, target)
-        files.save_the_model(estimator, use_scaler, save_model_path)
+        click.echo("Fitting model...")
+        pipe.fit(features, target.values.ravel())
+        files.save_the_model(pipe, use_scaler, save_model_path)
     click.echo("Finished.")

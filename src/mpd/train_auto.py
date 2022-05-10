@@ -107,7 +107,6 @@ def train(
     save_model: bool,
     only_fit: bool,
 ) -> None:
-    mlflow.set_experiment(f"{model_type}_auto")
     features, target = files.get_dataset(dataset_path)
     click.echo("Fitting model...")
     searcher = searchcv.get_search(
@@ -117,16 +116,16 @@ def train(
         shuffle=shuffle,
         model_type=model.model_types[model_type],
     )
-    estimator = searchcv.search(
-        searcher=searcher,
+    pipe = model.create_pipeline(searcher, use_scaler)
+    estimator, params = searchcv.search(
+        searcher=pipe,
         features=features,
         targets=target,
-        random_state=random_state,
-        shuffle=shuffle,
+        use_scaler=use_scaler
     )
-    if only_fit and save_model:
-        files.save_the_model(estimator, use_scaler, save_model_path)
-    else:
+    pipe2 = model.create_pipeline(estimator, use_scaler)
+    if not only_fit:
+        mlflow.set_experiment(f"{model_type}_auto")
         with mlflow.start_run():
             metrics = crossvalidate.cross_validate_model(
                 features=features,
@@ -135,9 +134,12 @@ def train(
                 shuffle=shuffle,
                 use_scaler=use_scaler,
                 random_state=random_state,
-                estimator=estimator,
+                estimator=pipe2,
             )
-            mlflow_utils.log_mlflow_data(searcher.best_params_, metrics)
-        if save_model:
-            files.save_the_model(estimator, use_scaler, save_model_path)
+            mlflow_utils.log_mlflow_data(params, metrics)
+
+    fit_pipe = pipe2.fit(features, target.values.ravel())
+    if save_model:
+        files.save_the_model(fit_pipe, use_scaler, save_model_path)
+
     click.echo("Finished.")

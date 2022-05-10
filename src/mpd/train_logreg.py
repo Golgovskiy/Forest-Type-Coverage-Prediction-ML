@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import click
-import mlflow.sklearn as mlflow
+import mlflow
 
 from mpd import files, model, crossvalidate, mlflow_utils
 
@@ -78,7 +78,7 @@ from mpd import files, model, crossvalidate, mlflow_utils
 )
 @click.option(
     "--max_iter",
-    default=500,
+    default=2000,
     help="Maximum number of iterations.",
     type=int,
     show_default=True,
@@ -99,10 +99,10 @@ def train(
 
     mlflow.set_experiment("logreg")
     (features, target) = files.get_dataset(dataset_path)
-    click.echo("Fitting model...")
     estimator = model.get_logreg(
         max_iter=max_iter, c=c, penalty=penalty, random_state=random_state
     )
+    pipe = model.create_pipeline(estimator,use_scaler)
     if not only_fit:
         with mlflow.start_run():
             metrics = crossvalidate.cross_validate_model(
@@ -112,13 +112,14 @@ def train(
                 shuffle=shuffle,
                 use_scaler=use_scaler,
                 random_state=random_state,
-                estimator=estimator,
+                estimator=pipe,
             )
             mlflow_utils.log_mlflow_data(
                 {"C": c, "penalty": penalty, "max_iter": max_iter}, metrics
             )
 
     if save_model:
-        estimator.fit(features, target)
-        files.save_the_model(estimator, use_scaler, save_model_path)
+        click.echo("Fitting model...")
+        pipe.fit(features, target.values.ravel())
+        files.save_the_model(pipe, use_scaler, save_model_path)
     click.echo("Finished.")
