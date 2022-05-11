@@ -1,5 +1,4 @@
 from pathlib import Path
-from joblib import dump
 
 import click
 import mlflow
@@ -118,10 +117,7 @@ def train(
     )
     pipe = model.create_pipeline(searcher, use_scaler)
     estimator, params = searchcv.search(
-        searcher=pipe,
-        features=features,
-        targets=target,
-        use_scaler=use_scaler
+        searcher=pipe, features=features, targets=target, use_scaler=use_scaler
     )
     pipe2 = model.create_pipeline(estimator, use_scaler)
     if not only_fit:

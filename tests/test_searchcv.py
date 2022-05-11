@@ -4,44 +4,30 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import RandomizedSearchCV
 
-from mpd import searchcv
+from mpd import searchcv, model
 
 
 # from sklearn.datasets import make_classification
-
-
-# @pytest.fixture
-# def runner():
-#     return click.testing.CliRunner()
-
-
-# @pytest.fixture
-# def mock_get_dataset(mocker):
-#     mock = mocker.patch("files.get_dataset")
-#     mock.return_value = make_classification()
-#     return mock
-
-# def test_train(runner,mock_get_dataset):
-#    result = runner.invoke(train.train)
-#    assert result.exit_code == 0
+randfor_type = model.randfor_type
+logreg_type = model.logreg_type
 
 def test_get_search_space_logreg_grid():
-    result = searchcv.get_search(LogisticRegression(), "grid")
+    result = searchcv.get_search(logreg_type, "grid")
     assert result.param_grid is searchcv.logreg_space
 
 
 def test_get_search_space_randfor_grid():
-    result = searchcv.get_search(RandomForestClassifier(), "grid")
+    result = searchcv.get_search(randfor_type, "grid")
     assert result.param_grid is searchcv.randfor_space
 
 
 def test_get_search_space_logreg_random():
-    result = searchcv.get_search(LogisticRegression(), "random")
+    result = searchcv.get_search(logreg_type, "random")
     assert result.param_distributions is searchcv.logreg_space
 
 
 def test_get_search_space_randfor_random():
-    result = searchcv.get_search(RandomForestClassifier(), "random")
+    result = searchcv.get_search(randfor_type, "random")
     assert result.param_distributions is searchcv.randfor_space
 
 
@@ -51,10 +37,10 @@ def test_get_search_space_fail():
 
 
 def test_get_search_grid():
-    result = searchcv.get_search(RandomForestClassifier(), "grid")
+    result = searchcv.get_search(randfor_type, "grid")
     assert isinstance(result, GridSearchCV)
 
 
 def test_get_search_random():
-    result = searchcv.get_search(RandomForestClassifier(), "random")
+    result = searchcv.get_search(randfor_type, "random")
     assert isinstance(result, RandomizedSearchCV)

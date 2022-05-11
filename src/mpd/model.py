@@ -1,17 +1,22 @@
+from typing import Any
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.base import BaseEstimator
 
 
-def get_model(model_type, random_state):
+def get_model(model_type: type, random_state: int) -> BaseEstimator:
     if model_type is logreg_type:
         return get_logreg(random_state)
     if model_type is randfor_type:
         return get_randfor(random_state)
 
 
-def get_logreg(random_state, max_iter=500, c=1, penalty="l2"):
+def get_logreg(
+    random_state: int, max_iter: int = 500, c: float = 1, penalty: str = "l2"
+) -> BaseEstimator:
     if penalty == ("l2" or "none"):
         solver = "lbfgs"
     else:
@@ -31,14 +36,14 @@ def get_logreg(random_state, max_iter=500, c=1, penalty="l2"):
 
 
 def get_randfor(
-    random_state,
-    n_estimators=100,
-    criterion="gini",
-    max_depth=None,
-    min_samples_split=2,
-    bootstrap=True,
-    ccp_alpha=0,
-):
+    random_state: int,
+    n_estimators: int = 100,
+    criterion: str = "gini",
+    max_depth: Any = None,
+    min_samples_split: float = 0.1,
+    bootstrap: bool = True,
+    ccp_alpha: float = 0,
+) -> BaseEstimator:
     model = RandomForestClassifier(
         random_state=random_state,
         n_estimators=n_estimators,
@@ -51,7 +56,7 @@ def get_randfor(
     return model
 
 
-def create_pipeline(estimator, use_scaler):
+def create_pipeline(estimator: BaseEstimator, use_scaler: bool) -> Pipeline:
     pipeline_steps = []
     if use_scaler:
         pipeline_steps.append(("scaler", StandardScaler()))

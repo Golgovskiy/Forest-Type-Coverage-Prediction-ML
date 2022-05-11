@@ -10,7 +10,8 @@ from mpd import files, model, crossvalidate, mlflow_utils
 @click.option(
     "--c",
     default=1,
-    help="Inverse of regularization strength; must be a positive float. Like in support vector "
+    help="Inverse of regularization strength;"
+    " must be a positive float. Like in support vector "
     "machines, smaller values specify stronger regularization.",
     type=float,
     show_default=True,
@@ -18,7 +19,7 @@ from mpd import files, model, crossvalidate, mlflow_utils
 @click.option(
     "--penalty",
     default="l2",
-    help="Specify the norm of the penalty: 'l1', 'l2', 'elasticnet', 'none'.",
+    help="Specify the norm of the penalty: 'l1'," " 'l2', 'elasticnet', 'none'.",
     type=click.Choice(["l1", "l2", "elasticnet", "none"], case_sensitive=False),
     show_default=True,
 )
@@ -84,16 +85,16 @@ from mpd import files, model, crossvalidate, mlflow_utils
     show_default=True,
 )
 def train(
-    dataset_path,
-    save_model_path,
-    random_state,
-    cv_splits,
-    use_scaler,
-    max_iter,
-    c,
-    penalty,
-    save_model,
-    only_fit,
+    dataset_path: Path,
+    save_model_path: Path,
+    random_state: int,
+    cv_splits: int,
+    use_scaler: bool,
+    max_iter: int,
+    c: float,
+    penalty: str,
+    save_model: bool,
+    only_fit: bool,
     shuffle: bool,
 ) -> None:
 
@@ -102,7 +103,7 @@ def train(
     estimator = model.get_logreg(
         max_iter=max_iter, c=c, penalty=penalty, random_state=random_state
     )
-    pipe = model.create_pipeline(estimator,use_scaler)
+    pipe = model.create_pipeline(estimator, use_scaler)
     if not only_fit:
         with mlflow.start_run():
             metrics = crossvalidate.cross_validate_model(

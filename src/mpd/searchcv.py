@@ -1,3 +1,4 @@
+from typing import Tuple
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import RandomizedSearchCV
@@ -8,13 +9,13 @@ from mpd import model
 
 
 def search(
-    searcher: BaseEstimator,
-    features: DataFrame,
-    targets: Series,
-    use_scaler: bool
-) -> (BaseEstimator, dict):
+    searcher: BaseEstimator, features: DataFrame, targets: Series, use_scaler: bool
+) -> Tuple:  # type: ignore
     searcher.fit(X=features, y=targets.values.ravel())
-    return searcher[int(use_scaler)].best_estimator_, searcher[int(use_scaler)].best_params_
+    return (
+        searcher[int(use_scaler)].best_estimator_,
+        searcher[int(use_scaler)].best_params_,
+    )
 
 
 def get_search(

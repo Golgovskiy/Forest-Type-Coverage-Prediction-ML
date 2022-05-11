@@ -1,5 +1,7 @@
 import numpy as np
+from pandas import DataFrame, Series
 import click
+from sklearn.base import BaseEstimator
 from sklearn.model_selection import cross_validate
 from sklearn.model_selection import StratifiedKFold
 
@@ -7,8 +9,14 @@ from mpd import model
 
 
 def cross_validate_model(
-    features, target, cv_splits, shuffle, estimator, random_state, use_scaler
-) -> dict:
+    features: DataFrame,
+    target: Series,
+    cv_splits: int,
+    shuffle: bool,
+    estimator: BaseEstimator,
+    random_state: int,
+    use_scaler: bool,
+) -> dict:  # type: ignore
     click.echo("Cross-validating model...")
 
     pipe = model.create_pipeline(estimator, use_scaler)
@@ -33,9 +41,13 @@ def cross_validate_model(
     }
 
     click.echo(
-        f"Average fit time: {metrics['fit_time']:.3f} ± {np.std(metrics['fit_time']):.3f}. "
-        f"Accuracy: {np.mean(metrics['test_accuracy']):.3f} ± {np.std(metrics['test_accuracy']):.3f}. "
-        f"F1: {np.mean(metrics['test_f1_weighted']):.3f} ± {np.std(metrics['test_f1_weighted']):.3f}. "
-        f"ROC_AUC: {np.mean(metrics['test_roc_auc_ovr']):.3f} ± {np.std(metrics['test_roc_auc_ovr']):.3f}."
+        f"Average fit time: {metrics['fit_time']:.3f} ±"
+        f" {np.std(metrics['fit_time']):.3f}. "
+        f"Accuracy: {np.mean(metrics['test_accuracy']):.3f} ±"
+        f" {np.std(metrics['test_accuracy']):.3f}. "
+        f"F1: {np.mean(metrics['test_f1_weighted']):.3f} ±"
+        f" {np.std(metrics['test_f1_weighted']):.3f}. "
+        f"ROC_AUC: {np.mean(metrics['test_roc_auc_ovr']):.3f} ±"
+        f" {np.std(metrics['test_roc_auc_ovr']):.3f}."
     )
     return metrics

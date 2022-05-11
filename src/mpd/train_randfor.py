@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import click
 import mlflow
@@ -17,8 +18,10 @@ from mpd import files, model, crossvalidate, mlflow_utils
 @click.option(
     "--criterion",
     default="gini",
-    help="The function to measure the quality of a split. Supported criteria are"
-    "  'gini' for the Gini impurity and 'entropy' for the information gain."
+    help="The function to measure the quality"
+    " of a split. Supported criteria are"
+    "  'gini' for the Gini impurity and 'entropy'"
+    " for the information gain."
     " Note: this parameter is tree-specific.",
     type=click.Choice(["gini", "entropy"], case_sensitive=False),
     show_default=True,
@@ -26,8 +29,10 @@ from mpd import files, model, crossvalidate, mlflow_utils
 @click.option(
     "--max_depth",
     default=None,
-    help="The maximum depth of the tree. If None, then nodes are expanded until all "
-    "leaves are pure or until all leaves contain less than min_samples_split samples.",
+    help="The maximum depth of the tree."
+    " If None, then nodes are expanded until all "
+    "leaves are pure or until all leaves contain"
+    " less than min_samples_split samples.",
     type=int or None,
     show_default=True,
 )
@@ -41,7 +46,8 @@ from mpd import files, model, crossvalidate, mlflow_utils
 @click.option(
     "--bootstrap",
     default=True,
-    help="Whether bootstrap samples are used when building trees. If False, "
+    help="Whether bootstrap samples are used"
+    " when building trees. If False, "
     "the whole dataset is used to build each tree.",
     type=bool,
     show_default=True,
@@ -49,8 +55,10 @@ from mpd import files, model, crossvalidate, mlflow_utils
 @click.option(
     "--ccp_alpha",
     default=0,
-    help="(RandomForestClassifier) Complexity parameter used for Minimal Cost-Complexity Pruning. "
-    "The subtree with the largest cost complexity that is smaller than ccp_alpha will be chosen."
+    help="Complexity parameter used for Minimal"
+    " Cost-Complexity Pruning. "
+    "The subtree with the largest cost complexity"
+    " that is smaller than ccp_alpha will be chosen."
     " By default, no pruning is performed.",
     type=int,
     show_default=True,
@@ -93,11 +101,7 @@ from mpd import files, model, crossvalidate, mlflow_utils
     show_default=True,
 )
 @click.option(
-    "--random_state",
-    default=42,
-    help="Random seed.",
-    type=int,
-    show_default=True
+    "--random_state", default=42, help="Random seed.", type=int, show_default=True
 )
 @click.option(
     "--cv_splits",
@@ -114,14 +118,14 @@ from mpd import files, model, crossvalidate, mlflow_utils
     show_default=True,
 )
 def train(
-    dataset_path,
+    dataset_path: Path,
     save_model_path: Path,
-    random_state: Path,
-    use_scaler: int,
-    n_estimators: bool,
-    criterion: int,
-    max_depth: int or None,
-    min_samples_split: int,
+    random_state: int,
+    use_scaler: bool,
+    n_estimators: int,
+    criterion: str,
+    max_depth: Any,
+    min_samples_split: float,
     bootstrap: bool,
     ccp_alpha: float,
     save_model: bool,
@@ -142,7 +146,7 @@ def train(
         random_state=random_state,
     )
 
-    pipe = model.create_pipeline(estimator,use_scaler)
+    pipe = model.create_pipeline(estimator, use_scaler)
     if not only_fit:
         with mlflow.start_run():
             metrics = crossvalidate.cross_validate_model(

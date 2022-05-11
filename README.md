@@ -2,7 +2,8 @@
 Demo ML project for RS School
 This project uses [Forest Cover Type Prediction](https://www.kaggle.com/competitions/forest-cover-type-prediction/data) dataset.
 
-MLFLow:
+MLFLow experiment example:
+
 ![Alt text](etc/mlflow.png?raw=true)
 
 ## Usage
@@ -22,7 +23,7 @@ You can configure additional options (such as hyperparameters) in the CLI. To ge
 ```sh
 poetry run train --help
 ```
-6. Run MLflow UI to see the information about experiments you conducted:
+6. Run MLF~~~~low UI to see the information about experiments you conducted:
 ```sh
 poetry run mlflow ui
 ```
@@ -52,3 +53,6 @@ Format your code with [black](https://github.com/psf/black) by using either nox 
 nox -[r]s black
 poetry run black src tests noxfile.py
 ```
+The end result must be:
+
+![Alt text](etc/result.png?raw=true)

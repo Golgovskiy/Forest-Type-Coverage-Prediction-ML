@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mpd"
-version = "0.0.1"
+version = "0.1.0"
 description = "Demo ml project"
 authors = ["Golgovskiy"]
 readme = "README.md"
@@ -15,21 +15,22 @@ pandas-profiling = "^3.2.0"
 mlflow = "^1.25.1"
 GitPython = "3.1.24"
 pathlib = "^1.0.1"
-sklearn = "^0.0"
 numpy = "^1.22.3"
+scikit-learn = ""
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
 black = "^22.3.0"
 mypy = "^0.950"
 pytest-mock = "^3.7.0"
+flake8 = "^4.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-report = "mpd.report:makeReport"
+report = "mpd.report:report"
 train_logreg = "mpd.train_logreg:train"
 train_auto = "mpd.train_auto:train"
 train_randfor = "mpd.train_randfor:train"
