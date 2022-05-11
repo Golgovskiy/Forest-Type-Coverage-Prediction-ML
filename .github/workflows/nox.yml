@@ -19,5 +19,5 @@ jobs:
         poetry install
     - name: Run nox
       run: |
-        poetry run nox
+        poetry run nox -rs
 
