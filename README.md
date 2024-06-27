@@ -1,5 +1,3 @@
-[![Tests](https://github.com/Golgovskiy/mpd/workflows/Tests/badge.svg)](https://github.com/Golgovskiy/mpd/actions?workflow=Tests)
-
 # Forest Cover Type Prediction
 Graduation ML project for RS School
 This project uses [Forest Cover Type Prediction](https://www.kaggle.com/competitions/forest-cover-type-prediction/data) dataset.
