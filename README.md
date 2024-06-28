@@ -1,5 +1,6 @@
 # Forest Cover Type Prediction
 Graduation ML project for RS School
+
 This project uses [Forest Cover Type Prediction](https://www.kaggle.com/competitions/forest-cover-type-prediction/data) dataset.
 
 MLFLow experiment example:
